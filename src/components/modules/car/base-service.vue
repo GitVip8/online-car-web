@@ -34,18 +34,26 @@
         :total="page.totalElements"
       ></el-pagination>
     </div>
-    <el-dialog top="10vh" title="驾驶员详情" :visible.sync="dialogVisible" width="80%">
+    <el-dialog top="10vh" title="服务机构信息详情" :visible.sync="dialogVisible" width="80%">
       <div class="dialog-content" v-if="selected">
-        <el-tabs type="card" v-if="selected" value="first">
-          <el-tab-pane label="基本信息" name="first">
-            <info-table :items="infoTableItems" :cols="2" ></info-table>
+        <el-tabs type="card" v-if="selected" value="A">
+          <el-tab-pane label="基本信息" name="A">
+            <info-table :cols="2" :items="serviceInfo.base"></info-table>
           </el-tab-pane>
-
-          <el-tab-pane label="培训信息" name="second">
-            <info-table :items="insuranceTableItems" :cols="1" ></info-table>
+          <el-tab-pane label="运营规模信息" name="B" :disabled="!serviceInfo.stat">
+            <info-table :cols="2" :items="serviceInfo.stat"></info-table>
           </el-tab-pane>
-          <el-tab-pane label="移动终端信息" name="third">
-            <info-table :items="totalMileTableItem" :cols="1" ></info-table>
+          <el-tab-pane label="支付信息" name="C" :disabled="!serviceInfo.pay">
+            <info-table :cols="2" :items="serviceInfo.pay"></info-table>
+          </el-tab-pane>
+          <el-tab-pane label="服务机构" name="D" :disabled="!serviceInfo.service">
+            <info-table :cols="2" :items="serviceInfo.service"></info-table>
+          </el-tab-pane>
+          <el-tab-pane label="经营许可" name="E" :disabled="!serviceInfo.permit">
+            <info-table :cols="2" :items="serviceInfo.permit"></info-table>
+          </el-tab-pane>
+          <el-tab-pane label="运价信息" name="F" :disabled="!serviceInfo.fare">
+            <info-table :cols="2" :items="serviceInfo.fare"></info-table>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -59,7 +67,7 @@
 <script>
 import InfoTable from './info-table.vue'
 export default {
-  name: 'BaseDriver',
+  name: 'BaseService',
 
   components: {
     InfoTable
@@ -298,25 +306,55 @@ export default {
   data () {
     return {
       selected: null,
-      infoTableItems: [],
-      insuranceTableItem: {},
-      totalMileTableItem: {},
+      serviceInfo: {
+        base: null,
+        stat: null,
+        pay: null,
+        service: null,
+        permit: null,
+        fare: null
+      },
       dialogVisible: false, // dialog是否可见
       // 查询列表显示字段
       tableColumn: [
         {
-          name: 'driverName',
-          label: '驾驶员姓名',
+          name: 'address',
+          label: '地区',
           width: 0
         },
         {
           name: 'company.companyName',
-          label: '公司名称',
+          label: '平台名称',
           width: 0
         },
         {
-          name: 'licenseId',
-          label: '驾驶证号',
+          name: 'orderId',
+          label: '订单号',
+          width: 0
+        },
+        {
+          name: 'order.orderTime',
+          label: '订单发起时间',
+          width: 0
+        },
+        {
+          name: 'vehicleNo',
+          label: '车辆号码',
+          width: 0
+        },
+        {
+          name: 'licenseld',
+          label: '机动车驾驶证号',
+          width: 0
+        },
+        {
+          name: 'driverPhone',
+          label: '驾驶员手机号',
+          width: 0
+        },
+        {
+          name: 'orderState',
+          label: '订单状态',
           width: 0
         }
       ],
@@ -332,7 +370,8 @@ export default {
         currentPage: 1,
         size: 10,
         totalPages: 1,
-        totalElements: 0
+        totalElements: 0,
+        sort: {}
       },
       // 排序信息
       sort: {}
@@ -341,45 +380,31 @@ export default {
   methods: {
     // 查询所有
     find () {
-      this.$axios
-        .get('/car/basic/driver-info/list', { params: this.page })
+      this.$axios.get('/car/operation/order-info/list', { params: this.page })
         .then(r => {
           if (r.data.code === 0) {
             var d = r.data.data
-            this.tableData = d.content
-            this.page = {
-              totalPages: d.totalPages,
-              totalElements: d.totalElements,
-              currentPage: d.number + 1,
-              size: d.size
-            }
+            this.tableData = d
           } else this.$message.error(r.date.msg)
         })
     },
-
     handleDetail (i, row) {
-      // 查询其他信息（里程、保险）
-      this.$axios.get(`/car/basic/driver-info/${row.licenseId}`).then(r => {
+      this.$axios.get(`/car/operation/order-info/${row.orderId}`).then(r => {
         if (r.data.code === 0) {
-          row.insurance = r.data.data.insurance
-          row.totalMile = r.data.data.totalMil
-          this.selected = row
+          this.selected = r.data.data
         } else {
           this.$message.error(r.date.msg)
         }
       })
       this.dialogVisible = true
     },
-    handelSortChange () {
-
-    }
+    handelSortChange () {}
   }
 }
 </script>
 
 <style>
-
-.page-container{
+.page-container {
   margin-top: 15px;
   width: 100%;
   text-align: right;

@@ -1,6 +1,9 @@
 import AdminLayout from '@/layout/admin/AdminLayout'
-import Login from '@/components/Login.vue'
 import BaseDriver from '@/components/modules/car/base-driver.vue'
+import BaseVehicle from '@/components/modules/car/base-vehicle.vue'
+import BaseService from '@/components/modules/car/base-service.vue'
+import OperationOrder from '@/components/modules/car/operation-order.vue'
+import E404 from '@/components/E404.vue'
 const menu = [
   {
     path: '/',
@@ -17,22 +20,22 @@ const menu = [
     icon: 'fa fa-volume-control-phone',
     children: [
       {
-        path: '',
+        path: '/company-entry',
         name: '平台公司许可信息录入',
         icon: 'fa fa-bookmark',
-        component: Login
+        component: E404
       },
       {
-        path: '',
+        path: '/vehicle-entry',
         name: '车辆许可信息录入',
         icon: 'fa fa-automobile',
-        component: Login
+        component: E404
       },
       {
-        path: '',
+        path: '/driver-entry',
         name: '驾驶员许可信息录入',
         icon: 'fa fa-drivers-license',
-        component: Login
+        component: E404
       }
     ]
   },
@@ -44,22 +47,22 @@ const menu = [
     meta: { requireUser: true },
     children: [
       {
-        path: '/user',
+        path: '/service-compare',
         name: '服务机构信息查询',
         icon: 'fa fa-institution',
-        component: Login
+        component: E404
       },
       {
-        path: '/user',
+        path: '/vehicle-compare',
         name: '车辆信息查询',
         icon: 'fa fa-taxi',
-        component: Login
+        component: E404
       },
       {
-        path: '/user',
+        path: '/driver-compare',
         name: '驾驶员信息查询',
         icon: 'fa fa-drivers-license',
-        component: Login
+        component: E404
       }
     ]
   },
@@ -71,34 +74,34 @@ const menu = [
     meta: { requireUser: true },
     children: [
       {
-        path: '/user',
+        path: '/base-company',
         name: '平台公司信息查询',
         icon: 'fa fa-suitcase',
-        component: Login
+        component: E404
       },
       {
-        path: '/user',
+        path: '/base-service',
         name: '服务机构信息查询',
         icon: 'fa fa-rss-square',
-        component: Login
+        component: BaseService
+      },
+      {
+        path: '/base-car',
+        name: '车辆信息查询',
+        icon: 'fa fa-taxi',
+        component: BaseVehicle
       },
       {
         path: '/base-driver',
-        name: '车辆信息查询',
-        icon: 'fa fa-taxi',
+        name: '驾驶员信息查询',
+        icon: 'fa fa-drivers-license',
         component: BaseDriver
       },
       {
-        path: '/user',
-        name: '驾驶员信息查询',
-        icon: 'fa fa-drivers-license',
-        component: Login
-      },
-      {
-        path: '/user',
+        path: '/base-condition',
         name: '平台公司接入条件查询',
         icon: 'fa fa-paw',
-        component: Login
+        component: E404
       }
     ]
   },
@@ -110,16 +113,16 @@ const menu = [
     meta: { requireUser: true },
     children: [
       {
-        path: '/user',
+        path: '/operation-order',
         name: '订单信息查询',
         icon: 'fa fa-shopping-bag',
-        component: Login
+        component: OperationOrder
       },
       {
-        path: '/user',
+        path: '/vehicle-path',
         name: '车辆轨迹查询',
         icon: 'fa fa-street-view',
-        component: Login
+        component: E404
       }
     ]
   },
@@ -138,16 +141,16 @@ const menu = [
     meta: { requireUser: true },
     children: [
       {
-        path: '/user',
+        path: '/city-analysis',
         name: '城市视角',
         icon: 'fa fa-subway',
-        component: Login
+        component: E404
       },
       {
-        path: '/user',
+        path: '/paltform-analysis',
         name: '平台视角',
         icon: 'fa fa-window-restore',
-        component: Login
+        component: E404
       }
     ]
   }

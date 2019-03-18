@@ -1,15 +1,17 @@
 <template>
-  <div>
+  <div v-if="items">
     <table class="info-table" v-for="(item,index0) in items" :key="index0">
-      <tr><td :colspan="2*cols">{{item.name}}</td></tr>
-      <tr v-for="a in (item.properties.length%cols==0?item.properties.length/cols:(parseInt(item.properties.length/cols) + 1))" :key="a">
+      <tr>
+        <td :colspan="2*cols">{{item.name}}</td>
+      </tr>
+      <tr v-for="a in (item.properties.length%cols==0?item.properties.length/cols:(parseInt(item.properties.length/cols) + 1))" :key="a + 1">
         <template  v-for="b in cols">
-          <template v-if="item.properties[(a-1)*cols  (b-1)]">
-            <td :key="a+b">{{(item.properties[(a-1)*cols  (b-1)]?item.properties[(a-1)*cols  (b-1)].key:"")}}</td>
-            <td :key="a+b + 1">{{item.properties[(a-1)*cols  (b-1)]?item.properties[(a-1)*cols  (b-1)].value:""}}</td>
+          <template v-if="item.properties[(a-1)*cols + (b-1)]">
+            <td :key="a+ '_'+ b">{{(item.properties[(a-1)*cols + (b-1)]?item.properties[(a-1)*cols + (b-1)].key:"")}}</td>
+            <td :key="b + 1">{{item.properties[(a-1)*cols + (b-1)]?item.properties[(a-1)*cols + (b-1)].value:""}}</td>
           </template>
           <template v-else>
-            <td :key="a+b + 2"></td><td :key="a+b + 3"></td>
+            <td :key="b + 2"></td><td :key="b + 3"></td>
           </template>
         </template>
       </tr>
@@ -22,8 +24,7 @@ export default {
   props: {
     cols: {
       type: Number,
-      required: false,
-      default: 1
+      required: false
     },
     items: {
       type: Array,
