@@ -1,14 +1,33 @@
 <template>
   <div>
-    <el-table size="small" :data="tableData" border style="width: 100%">
+    <div class="condition-container">
+      <el-form :inline="true" v-model="condition" label-width="120px">
+        <el-form-item label="车牌号">
+          <el-input size="small" v-model="condition.vehicleNo" :clearable="true"></el-input>
+        </el-form-item>
+        <el-form-item label="所属公司">
+          <el-select size="small" filterable v-model="condition.company.companyId" :clearable="true">
+            <el-option v-for="c in companys" :key="c.name" :label="c.label" :value="c.code"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="所有人">
+          <el-input size="small" v-model="condition.ownerName" :clearable="true"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button size="small" type="primary" @click="find">查询</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <el-table size="small" :data="tableData" stripe style="width: 100%" @sort-change="handleSortChange">
       <el-table-column
         v-for="(column,index) in tableColumn"
         :key="index"
         :prop="column.name"
         :label="column.label"
         :width="column.width < 1?'':(column.width + 'px')"
+        :sortable="column.sortable"
       ></el-table-column>
-      <el-table-column width="60px" label="详情" align="center" @sort-change="handelSortChange">
+      <el-table-column width="60px" label="详情" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -26,7 +45,7 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="page.currentPage"
+        :current-page="page.page"
         :page-sizes="[10, 20,30, 50]"
         :page-size="page.size"
         :page-count="page.totalPages"
@@ -60,6 +79,8 @@
 
 <script>
 import InfoTable from './info-table.vue'
+import { findCompany } from '@/api/pub.js'
+import { parseAddress } from '@/util/dic.js'
 export default {
   name: 'BaseDriver',
   components: {
@@ -78,11 +99,11 @@ export default {
             },
             {
               key: '省份',
-              value: ''
+              value: this.selected.address ? this.selected.address.split(' ')[0] : ''
             },
             {
               key: '城市',
-              value: ''
+              value: this.selected.address ? this.selected.address.split(' ')[1] : ''
             },
             {
               key: '车身颜色',
@@ -285,17 +306,49 @@ export default {
       // 查询列表显示字段
       tableColumn: [
         {
+          name: 'company.companyName',
+          label: '所属公司',
+          sortable: true,
+          width: 0
+        },
+        {
+          name: 'address',
+          label: '所在城市',
+          width: 0
+        },
+        {
           name: 'vehicleNo',
           label: '车牌号',
           width: 0
         },
         {
-          name: 'company.companyName',
-          label: '公司名称',
-          width: 0
-        }, {
           name: 'ownerName',
-          label: '拥有人',
+          label: '所有人',
+          width: 0
+        },
+        {
+          name: 'brand',
+          label: '车辆厂牌',
+          width: 0
+        },
+        {
+          name: 'model',
+          label: '车辆型号',
+          width: 0
+        },
+        {
+          name: 'vehicleType',
+          label: '车辆类型',
+          width: 0
+        },
+        {
+          name: 'seats',
+          label: '核定载客位',
+          width: 0
+        },
+        {
+          name: 'vehicleColor',
+          label: '车身颜色',
           width: 0
         }
       ],
@@ -303,31 +356,46 @@ export default {
       tableData: [],
       // 查询条件
       condition: {
-        test1: '',
-        test2: ''
+        vehicleNo: null,
+        company: {
+          companyId: null
+        },
+        ownerName: null
       },
       // 分页信息
       page: {
-        currentPage: 1,
+        page: 1,
         size: 10,
         totalPages: 1,
-        totalElements: 0
+        totalElements: 0,
+        sort: {}
       },
       // 排序信息
-      sort: {}
+      companys: []
     }
   },
   methods: {
+    findCompanyDic () {
+      findCompany().then(res => {
+        this.companys = []
+        let cs = res.data.data
+        cs.forEach(a => this.companys.push({ code: a[0], label: a[1] }))
+      })
+    },
     // 查询所有
-    find: function () {
-      this.$axios.get('/car/basic/car-info/list', {params: this.page}).then((r) => {
+    find () {
+      console.info('page', this.page.page)
+      this.$axios.post('/car/basic/car-info/list', {page: this.page, condition: this.condition}).then((r) => {
         if (r.data.code === 0) {
           var d = r.data.data
-          this.tableData = d.content
+          this.tableData = d.content.map(function (a) {
+            a.address = parseAddress(a.address)
+            return a
+          })
           this.page = {
             totalPages: d.totalPages,
             totalElements: d.totalElements,
-            currentPage: (d.number + 1),
+            page: (d.number + 1),
             size: d.size
           }
         } else {
@@ -349,16 +417,23 @@ export default {
       this.dialogVisible = true
     },
     handleSizeChange: function (a) {
+      this.page.size = a
       this.find()
     },
     handleCurrentChange: function (b) {
+      this.page.page = b
       this.find()
     },
-    handelSortChange: function () {
+    handleSortChange: function (column, prop, order) {
+      this.page.sort = {
+        order: column.order,
+        prop: column.prop
+      }
     }
   },
   created () {
     this.find()
+    this.findCompanyDic()
   }
 }
 </script>

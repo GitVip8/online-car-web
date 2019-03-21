@@ -1,5 +1,48 @@
 <template>
   <div>
+    <div class="condition-container">
+      <el-form :inline="true" v-model="condition" label-width="120px">
+        <el-row>
+          <el-form-item label="地区">
+              <el-cascader :props="xzqhProps" size="small" v-model="condition.address"
+                :options="xzqhList"
+                filterable>
+              </el-cascader>
+          </el-form-item>
+          <el-form-item label="平台名称">
+            <el-select size="small" filterable v-model="condition.companyName" :clearable="true">
+              <el-option v-for="c in companys" :key="c.name" :label="c.label" :value="c.code"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="订单发起时间">
+            <el-date-picker
+              v-model="condition.orderTime" value-format="yyyyMMdd"
+              type="daterange"
+              range-separator="至" size="small">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button size="small" type="primary" @click="find">查询</el-button>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="搜索类型">
+            <el-select size="small" filterable v-model="search.current">
+              <el-option v-for="c in search.labels" :key="c.name" :label="c" :value="c"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="search.current === '车牌号码'" :label="search.current">
+            <el-input size="small" v-model="condition.vehicleNo" :clearable="true"></el-input>
+          </el-form-item>
+          <el-form-item v-if="search.current === '机动车驾驶证号'" :label="search.current">
+            <el-input size="small" v-model="condition.licenseId" :clearable="true"></el-input>
+          </el-form-item>
+          <el-form-item v-if="search.current === '驾驶员手机号'" :label="search.current">
+            <el-input size="small" v-model="condition.driverPhone" :clearable="true"></el-input>
+          </el-form-item>
+        </el-row>
+      </el-form>
+    </div>
     <el-table size="small" :data="tableData" border style="width: 100%">
       <el-table-column
         v-for="(column,index) in tableColumn"
@@ -24,9 +67,9 @@
     <div class="page-container" v-if="page">
       <el-pagination
         background
-        @size-change="find"
-        @current-change="find"
-        :current-page="page.currentPage"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page.page"
         :page-sizes="[10, 20,30, 50]"
         :page-size="page.size"
         :page-count="page.totalPages"
@@ -66,6 +109,8 @@
 
 <script>
 import InfoTable from './info-table.vue'
+import { XZQH } from '@/util/dic.js'
+import { findCompany } from '@/api/pub.js'
 export default {
   name: 'OperationOrder',
 
@@ -73,9 +118,28 @@ export default {
     InfoTable
   },
   created () {
+    if (XZQH) this.xzqh = XZQH
     this.find()
+    this.findCompanyDic()
   },
   watch: {
+    condition (a) {
+      if (a.vehicleNo) {
+        this.condition.licenseId = null
+        this.condition.driverPhone = null
+      }
+      if (a.licenseId) {
+        this.condition.vehicleNo = null
+        this.condition.driverPhone = null
+      }
+      if (a.driverPhone) {
+        this.condition.licenseId = null
+        this.condition.vehicleNo = null
+      }
+    },
+    xzqh (a) {
+      this.xzqhList = a
+    },
     selected: function (a, b) {
       if (!a) return
       this.orderInfo.create = [
@@ -289,6 +353,18 @@ export default {
   },
   data () {
     return {
+      xzqh: [],
+      xzqhList: [],
+      xzqhProps: {
+        value: 'code',
+        label: 'name',
+        children: 'cityList'
+      },
+      companys: [],
+      search: {
+        current: '车牌号码',
+        labels: ['车牌号码', '机动车驾驶证号', '驾驶员手机号']
+      },
       selected: null,
       orderInfo: {
         create: null,
@@ -346,26 +422,42 @@ export default {
       tableData: [],
       // 查询条件
       condition: {
-        test1: '',
-        test2: ''
+        companyName: null,
+        address: null,
+        orderTime: null,
+        vehicleNo: null,
+        licenseId: null,
+        driverPhone: null
       },
       // 分页信息
       page: {
-        currentPage: 1,
+        page: 1,
         size: 10,
         totalPages: 1,
         totalElements: 0,
         sort: {}
-      },
-      // 排序信息
-      sort: {}
+      }
     }
   },
   methods: {
+    findCompanyDic () {
+      findCompany().then(res => {
+        this.companys = []
+        let cs = res.data.data
+        cs.forEach(a => this.companys.push({ code: a[0], label: a[1] }))
+      })
+    },
     // 查询所有
     find () {
+      console.info(this.condition)
+      if (this.condition.orderTime && typeof (this.condition.orderTime) !== 'string') {
+        this.condition.orderTime = this.condition.orderTime[0] + '-' + this.condition.orderTime[1]
+      }
+      if (this.condition.address && typeof (this.condition.address) !== 'string') {
+        this.condition.address = this.condition.address[1]
+      }
       this.$axios
-        .get('/car/operation/order-info/list', { params: this.page })
+        .post('/car/operation/order-info/list', {page: this.page, condition: this.condition})
         .then(r => {
           if (r.data.code === 0) {
             var d = r.data.data
@@ -383,7 +475,20 @@ export default {
       })
       this.dialogVisible = true
     },
-    handelSortChange () {}
+    handelSortChange (column) {
+      this.page.sort = {
+        order: column.order,
+        prop: column.prop
+      }
+    },
+    handleSizeChange: function (a) {
+      this.page.size = a
+      this.find()
+    },
+    handleCurrentChange: function (b) {
+      this.page.page = b
+      this.find()
+    }
   }
 }
 </script>

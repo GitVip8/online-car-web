@@ -28,3 +28,10 @@ export const getCurrentUser = () => fetch(
     method: 'get'
   }
 )
+
+export const findCompany = () => fetch(
+  {
+    url: '/car/company/list',
+    method: 'get'
+  }
+)
