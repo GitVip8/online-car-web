@@ -11,7 +11,7 @@
           </el-form-item>
           <el-form-item label="平台名称">
             <el-select size="small" filterable v-model="condition.companyName" :clearable="true">
-              <el-option v-for="c in companys" :key="c.name" :label="c.label" :value="c.code"></el-option>
+              <el-option v-for="c in companys" :key="c.name" :label="c.label" :value="c.label"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="订单发起时间">
@@ -22,6 +22,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item>
+            <el-button size="small" type="default" @click="reset">重置</el-button>
             <el-button size="small" type="primary" @click="find">查询</el-button>
           </el-form-item>
         </el-row>
@@ -43,7 +44,7 @@
         </el-row>
       </el-form>
     </div>
-    <el-table size="small" :data="tableData" border style="width: 100%">
+    <el-table size="small" :data="tableData" stripe style="width: 100%">
       <el-table-column
         v-for="(column,index) in tableColumn"
         :key="index"
@@ -109,7 +110,7 @@
 
 <script>
 import InfoTable from './info-table.vue'
-import { XZQH } from '@/util/dic.js'
+import { XZQH, parseAddress, parseDate } from '@/util/dic.js'
 import { findCompany } from '@/api/pub.js'
 export default {
   name: 'OperationOrder',
@@ -383,7 +384,7 @@ export default {
           width: 0
         },
         {
-          name: 'company.companyName',
+          name: 'companyName',
           label: '平台名称',
           width: 0
         },
@@ -393,7 +394,7 @@ export default {
           width: 0
         },
         {
-          name: 'order.orderTime',
+          name: 'orderTime',
           label: '订单发起时间',
           width: 0
         },
@@ -403,7 +404,7 @@ export default {
           width: 0
         },
         {
-          name: 'licenseld',
+          name: 'licenseId',
           label: '机动车驾驶证号',
           width: 0
         },
@@ -440,6 +441,16 @@ export default {
     }
   },
   methods: {
+    reset () {
+      this.condition = {
+        companyName: null,
+        address: null,
+        orderTime: null,
+        vehicleNo: null,
+        licenseId: null,
+        driverPhone: null
+      }
+    },
     findCompanyDic () {
       findCompany().then(res => {
         this.companys = []
@@ -449,20 +460,25 @@ export default {
     },
     // 查询所有
     find () {
-      console.info(this.condition)
-      if (this.condition.orderTime && typeof (this.condition.orderTime) !== 'string') {
-        this.condition.orderTime = this.condition.orderTime[0] + '-' + this.condition.orderTime[1]
-      }
-      if (this.condition.address && typeof (this.condition.address) !== 'string') {
-        this.condition.address = this.condition.address[1]
-      }
       this.$axios
         .post('/car/operation/order-info/list', {page: this.page, condition: this.condition})
         .then(r => {
           if (r.data.code === 0) {
             var d = r.data.data
-            this.tableData = d
-          } else this.$message.error(r.date.msg)
+            this.tableData = d.content.map(function (a) {
+              a.address = parseAddress(a.address)
+              a.orderTime = parseDate(a.orderTime)
+              return a
+            })
+            this.page = {
+              totalPages: d.totalPages,
+              totalElements: d.totalElements,
+              page: (d.number + 1),
+              size: d.size
+            }
+          } else {
+            this.$message.error(r.date.msg)
+          }
         })
     },
     handleDetail (i, row) {
@@ -481,11 +497,11 @@ export default {
         prop: column.prop
       }
     },
-    handleSizeChange: function (a) {
+    handleSizeChange (a) {
       this.page.size = a
       this.find()
     },
-    handleCurrentChange: function (b) {
+    handleCurrentChange (b) {
       this.page.page = b
       this.find()
     }

@@ -13597,3 +13597,8 @@ export const parseAddress = (code) => {
   if (!area || area.length < 1) return province[0].name + ' ' + city[0].name
   else return province[0].name + ' ' + city[0].name + ' ' + area[0].name
 }
+export const parseDate = (str) => {
+  str = str + ''
+  if (!str || str.length !== 8) return str
+  return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8)
+}

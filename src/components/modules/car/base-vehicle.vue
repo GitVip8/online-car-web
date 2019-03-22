@@ -416,15 +416,15 @@ export default {
       })
       this.dialogVisible = true
     },
-    handleSizeChange: function (a) {
+    handleSizeChange (a) {
       this.page.size = a
       this.find()
     },
-    handleCurrentChange: function (b) {
+    handleCurrentChange (b) {
       this.page.page = b
       this.find()
     },
-    handleSortChange: function (column, prop, order) {
+    handleSortChange (column, prop, order) {
       this.page.sort = {
         order: column.order,
         prop: column.prop

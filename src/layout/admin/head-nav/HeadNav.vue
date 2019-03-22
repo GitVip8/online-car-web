@@ -71,6 +71,7 @@ export default {
   border-bottom: 1px solid #ccc;
   height: 59px;
   overflow: hidden;
+  display: inline-block;
 }
 .logo img{
   margin-top: 5px;
