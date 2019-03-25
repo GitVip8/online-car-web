@@ -58,7 +58,7 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="page.currentPage"
+        :current-page="page.page"
         :page-sizes="[10, 20,30, 50]"
         :page-size="page.size"
         :page-count="page.totalPages"
@@ -85,9 +85,9 @@
             <div class="page-container" v-if="page">
               <el-pagination
                 background
-                @size-change="findEducate"
-                @current-change="findEducate"
-                :current-page="educate.page.currentPage"
+                @size-change="handleSizeChangeEducate"
+                @current-change="handleCurrentChangeEducate"
+                :current-page="educate.page.page"
                 :page-sizes="[10, 20,30, 50]"
                 :page-size="educate.page.size"
                 :page-count="educate.page.totalPages"
@@ -95,7 +95,7 @@
                 :total="educate.page.totalElements"
               >
               </el-pagination>
-          </div>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="移动终端信息" name="third" :disabled="!selected.app">
             <info-table :items="app" :cols="1" ></info-table>
@@ -350,6 +350,14 @@ export default {
           ]
         }
       ]
+      this.educate.tableData = []
+      this.educate.page = {
+        page: 1,
+        size: 10,
+        totalPages: 1,
+        totalElements: 0,
+        sort: {}
+      }
     }
   },
   data () {
@@ -525,6 +533,7 @@ export default {
     },
     handleTabSwitch (a) {
       if (a.name !== 'second') return
+      if (this.educate.tableData && this.educate.tableData.length > 0) return
       this.findEducate()
     },
     findEducate () {

@@ -3,6 +3,7 @@ import BaseDriver from '@/components/modules/car/base-driver.vue'
 import BaseVehicle from '@/components/modules/car/base-vehicle.vue'
 import BaseService from '@/components/modules/car/base-service.vue'
 import OperationOrder from '@/components/modules/car/operation-order.vue'
+import OperationTrajectory from '@/components/modules/car/operation-trajectory.vue'
 import E404 from '@/components/E404.vue'
 const menu = [
   {
@@ -119,10 +120,10 @@ const menu = [
         component: OperationOrder
       },
       {
-        path: '/vehicle-path',
+        path: '/operation-trajectory',
         name: '车辆轨迹查询',
         icon: 'fa fa-street-view',
-        component: E404
+        component: OperationTrajectory
       }
     ]
   },
