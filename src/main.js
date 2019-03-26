@@ -10,6 +10,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'font-awesome/css/font-awesome.min.css'
 // axios
 import axios from 'axios'
+
 Vue.config.productionTip = false
 Vue.use(ElementUi)
 Vue.prototype.$axios = axios
