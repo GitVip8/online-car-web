@@ -4,13 +4,13 @@
     <div class='login-form'>
       <el-form :model="form">
         <el-form-item label="用户名">
-          <el-input v-model="form.username" :clearable="true" :autofocus="true"></el-input>
+          <el-input v-model="form.username" size="small" :clearable="true" :autofocus="true"></el-input>
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="form.password" type="password" :clearable="true"></el-input>
+          <el-input v-model="form.password" size="small" type="password" :clearable="true"></el-input>
         </el-form-item>
       </el-form>
-      <el-button type="primary" @click='handelLogin' :validate-event="true" :loading='logining'>登 录</el-button>
+      <el-button type="primary" size="small" @click='handelLogin' :validate-event="true" :loading='logining'>登 录</el-button>
     </div>
   </div>
 </template>
@@ -77,6 +77,7 @@ h2{
   padding: 30px 40px;
   background-color: #ffffffbd;
   border-radius: 4px;
+  text-align: center;
 
 }
 </style>

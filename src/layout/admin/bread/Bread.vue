@@ -4,11 +4,11 @@
       <i class="fa fa-bars"></i>
     </span>
     <el-breadcrumb separator="/" class='el-bread' separator-class="el-icon-arrow-right">
-      <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item> -->
-      <el-breadcrumb-item
-        v-for='(item,index) in $route.matched'
-        :key='index'>{{item.name}}
-      </el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <template v-if="$route.path !== '/'">
+        <el-breadcrumb-item v-for='(item,index) in $route.matched' :key='index'>{{item.name}}
+        </el-breadcrumb-item>
+      </template>
     </el-breadcrumb>
   </div>
 </template>
@@ -32,6 +32,7 @@ export default {
   mounted () {
   },
   created () {
+    console.info(this.$route)
     if (this.$route.matched.length) {
     /*
       var name = this.$route.matched[this.$route.matched.length - 1].name

@@ -1,5 +1,5 @@
 <template>
-  <el-submenu :index="p">
+  <el-submenu :index="p" v-if="!item.hide">
     <template slot="title">
       <i :class="item.icon"></i>
       <span>{{item.name}}</span>

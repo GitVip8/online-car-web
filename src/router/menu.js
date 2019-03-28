@@ -5,13 +5,22 @@ import BaseService from '@/components/modules/car/base-service.vue'
 import OperationOrder from '@/components/modules/car/operation-order.vue'
 import OperationTrajectory from '@/components/modules/car/operation-trajectory.vue'
 import E404 from '@/components/E404.vue'
+// import Dashboard from '@/components/modules/car/dashboard.vue'
 const menu = [
   {
     path: '/',
     name: '首页',
     component: AdminLayout,
     hide: true,
-    meta: { requireUser: true }
+    meta: { requireUser: true } // ,
+    /* children: [{
+      path: '/',
+      name: 'dashboard',
+      component: Dashboard,
+      hide: true,
+      meta: { requireUser: true }
+    }]
+    */
   },
   {
     path: '/permission-entry',
